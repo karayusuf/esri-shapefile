@@ -12,7 +12,7 @@ import java.nio.ByteOrder;
  * Byte 4   X          X     Double  1      Little
  * Byte 12  Y          Y     Double  1      Little
  */
-public class Point {
+public class Point implements Shape {
 
     public static Point fromBytes(final byte[] bytes) {
         final ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);

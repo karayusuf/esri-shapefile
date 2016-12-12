@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
  * points in the same shapefile. Often null shapes are place holders; they are used during
  * shapefile creation and are populated with geometric data soon after they are created.
  */
-public class Null {
+public class Null implements Shape {
 
     /**
      * Position  Field       Value  Type     Number  Byte Order

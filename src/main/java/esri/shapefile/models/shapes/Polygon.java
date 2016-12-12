@@ -31,7 +31,7 @@ import java.util.stream.IntStream;
  *
  * * Note: X = 44 + 4 * NumParts
  */
-public class Polygon {
+public class Polygon implements Shape {
 
     public static Polygon fromBytes(final byte[] bytes) {
         final ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
