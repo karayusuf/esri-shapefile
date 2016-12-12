@@ -85,6 +85,10 @@ public class MainFileHeader {
         return fileLength;
     }
 
+    public int getFileLengthBytes() {
+        return fileLength * 2;
+    }
+
     public int getVersion() {
         return version;
     }

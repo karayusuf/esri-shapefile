@@ -52,4 +52,8 @@ public class RecordHeader {
     public int getContentLength() {
         return contentLength;
     }
+
+    public int getContentLengthBytes() {
+        return contentLength * 2;
+    }
 }

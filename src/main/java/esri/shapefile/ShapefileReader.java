@@ -1,55 +1,53 @@
 package esri.shapefile;
 
 import esri.shapefile.models.MainFileHeader;
+import esri.shapefile.models.RecordHeader;
+import esri.shapefile.models.shapes.Polygon;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.function.BiConsumer;
 
 public class ShapefileReader {
 
-    public static ShapefileReader forShapefile(final String shapefilePath) throws FileNotFoundException {
-        final File file = new File(shapefilePath);
+    private final int MAIN_FILE_HEADER_SIZE = 100;
+    private final int RECORD_HEADER_SIZE = 8;
 
-        if (!file.exists()) {
-            throw new FileNotFoundException(file.getAbsolutePath());
-        }
+    public MainFileHeader getMainFileHeader(final String pathToShapefile) throws IOException {
+        final File file = new File(pathToShapefile);
+        final FileInputStream fileInputStream = new FileInputStream(file);
 
-        return new ShapefileReader(file);
+        final byte[] mainFileHeaderBytes = readBytes(fileInputStream, MAIN_FILE_HEADER_SIZE);
+        return MainFileHeader.fromBytes(mainFileHeaderBytes);
     }
 
-    private final File shapefile;
-    private final MainFileHeader mainFileHeader;
+    public void forEachRecord(final String pathToShapefile,
+                              final BiConsumer<RecordHeader, Polygon> recordConsumer) throws IOException {
+        final File file = new File(pathToShapefile);
+        final FileInputStream fileInputStream = new FileInputStream(file);
 
-    private ShapefileReader(final File shapefile) {
-        this.shapefile = shapefile;
-        this.mainFileHeader = readMainFileHeader();
+        final byte[] mainFileHeaderBytes = readBytes(fileInputStream, MAIN_FILE_HEADER_SIZE);
+        final MainFileHeader mainFileHeader = MainFileHeader.fromBytes(mainFileHeaderBytes);
+
+        int offset = mainFileHeaderBytes.length;
+        do {
+            final byte[] recordHeaderBytes = readBytes(fileInputStream, RECORD_HEADER_SIZE);
+            final RecordHeader recordHeader = RecordHeader.fromBytes(recordHeaderBytes);
+            offset += recordHeaderBytes.length;
+
+            final byte[] shapeBytes = readBytes(fileInputStream, recordHeader.getContentLengthBytes());
+            final Polygon polygon = Polygon.fromBytes(shapeBytes);
+            offset += shapeBytes.length;
+
+            recordConsumer.accept(recordHeader, polygon);
+        } while (offset < mainFileHeader.getFileLengthBytes());
     }
 
-    public MainFileHeader getMainFileHeader() {
-        return mainFileHeader;
+    private byte[] readBytes(final FileInputStream fileInputStream, final int numberOfBytes) throws IOException {
+        final byte[] bytes = new byte[numberOfBytes];
+        fileInputStream.read(bytes);
+        return bytes;
     }
-
-    private MainFileHeader readMainFileHeader() {
-        try {
-            final byte[] mainFileHeaderBytes = new byte[100];
-            final FileInputStream fileInputStream = new FileInputStream(shapefile);
-            fileInputStream.read(mainFileHeaderBytes);
-            return MainFileHeader.fromBytes(mainFileHeaderBytes);
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return null;
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-
-        }
-    }
-
-
-
 
 }
