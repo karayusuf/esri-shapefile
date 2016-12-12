@@ -40,8 +40,9 @@ public class Point implements Shape {
     private double x;
     private double y;
 
-    public int getShapeType() {
-        return shapeType;
+    @Override
+    public ShapeType getShapeType() {
+        return ShapeType.Point;
     }
 
     public double getX() {

@@ -19,18 +19,16 @@ public class Null implements Shape {
      * @return Null
      */
     public static Null fromBytes(final byte[] bytes) {
-        final ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
-        final Null nullShape = new Null();
-        nullShape.shapeType = byteBuffer.getInt();
-
-        return nullShape;
+        return immutableNullType;
     }
 
-    private Null() {}
-    private int shapeType;
+    private static Null immutableNullType = new Null();
 
-    public int getShapeType() {
-        return shapeType;
+    private Null() {}
+
+    @Override
+    public ShapeType getShapeType() {
+        return ShapeType.NullShape;
     }
 
 

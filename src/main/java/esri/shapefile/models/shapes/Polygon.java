@@ -94,8 +94,9 @@ public class Polygon implements Shape {
      */
     private List<Point> points;
 
-    public int getShapeType() {
-        return shapeType;
+    @Override
+    public ShapeType getShapeType() {
+        return ShapeType.Polygon;
     }
 
     public double getXMin() {
