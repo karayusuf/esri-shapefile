@@ -1,6 +1,7 @@
 package esri.shapefile;
 
 import esri.shapefile.models.MainFileHeader;
+import esri.shapefile.models.shapes.ShapeType;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -38,8 +39,10 @@ public class ShapefileReaderTest {
         final ShapefileReader shapefileReader = new ShapefileReader();
 
         final AtomicInteger recordCount = new AtomicInteger(0);
-        shapefileReader.forEachRecord(shapefilePath, (recordHeader, polygon) -> {
-            recordCount.getAndAdd(1);
+        shapefileReader.forEachRecord(shapefilePath, (recordHeader, shape) -> {
+            if (shape.getShapeType() == ShapeType.Polygon) {
+                recordCount.getAndAdd(1);
+            }
         });
 
         assertEquals(4755, recordCount.intValue());
