@@ -50,16 +50,16 @@ public class ShapefileReader {
     }
 
     private Shape buildShapeFromBytes(final byte[] shapeBytes) {
-        final ByteBuffer byteBuffer = ByteBuffer.wrap(shapeBytes);
-        byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+        final ByteBuffer shapeByteBuffer = ByteBuffer.wrap(shapeBytes);
+        shapeByteBuffer.order(ByteOrder.LITTLE_ENDIAN);
 
-        final int shapeType = byteBuffer.getInt(0);
-        byteBuffer.rewind();
+        final int shapeType = shapeByteBuffer.getInt(0);
+        shapeByteBuffer.rewind();
 
         switch (shapeType) {
-            case 0: return Null.fromBytes(shapeBytes);
-            case 1: return Point.fromBytes(shapeBytes);
-            case 5: return Polygon.fromBytes(shapeBytes);
+            case 0: return Null.fromBytes(shapeByteBuffer);
+            case 1: return Point.fromBytes(shapeByteBuffer);
+            case 5: return Polygon.fromBytes(shapeByteBuffer);
             default: throw new RuntimeException("Unknown Shape Value: " + shapeType);
         }
     }

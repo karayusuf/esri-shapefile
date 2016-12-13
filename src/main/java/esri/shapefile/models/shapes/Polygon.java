@@ -34,7 +34,10 @@ import java.util.stream.IntStream;
 public class Polygon implements Shape {
 
     public static Polygon fromBytes(final byte[] bytes) {
-        final ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+        return fromBytes(ByteBuffer.wrap(bytes));
+    }
+
+    public static Polygon fromBytes(final ByteBuffer byteBuffer) {
         byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
 
         final Polygon polygon = new Polygon();

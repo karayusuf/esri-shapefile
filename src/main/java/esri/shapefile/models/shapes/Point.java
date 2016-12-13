@@ -15,7 +15,10 @@ import java.nio.ByteOrder;
 public class Point implements Shape {
 
     public static Point fromBytes(final byte[] bytes) {
-        final ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+        return fromBytes(ByteBuffer.wrap(bytes));
+    }
+
+    public static Point fromBytes(final ByteBuffer byteBuffer) {
         byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
 
         final Point point = new Point();
