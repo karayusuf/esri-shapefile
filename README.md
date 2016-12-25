@@ -21,6 +21,18 @@ try {
 }
 ```
 
+### Read the main file header of a shapefile
+
+```java
+final ShapefileReader shapefileReader = new ShapefileReader();
+
+try {
+    final MainFileHeader mainFileHeader = shapefileReader.getMainFileHeader("/path/to/shapefile");
+} catch (final ShapefileNotReadableException e) {
+    // Something went wrong while attempting to read the shapefile.
+}
+```
+
 ## Contributing
 
 1. Fork it ( https://github.com/karayusuf/esri-shapefile/fork )
