@@ -9,16 +9,23 @@ import java.nio.ByteOrder;
  * table shows the fields in the file header with their byte position, value,
  * type, and byte order. In the table, position is with respect to the start
  * of the record.
- *
- * Description of Record Headers
- *
- * Position  Field           Value          Type    Order
- * --------  -----           -----          ----    -----
- * Byte 0    Record Number   Record Number  Integer Big
- * Byte 4    Content Length  Content Length Integer Big
  */
 public class RecordHeader {
 
+    /**
+     * Convert a byte array into a {@link RecordHeader}.
+     *
+     *
+     * @param bytes Byte array representation of the {@link RecordHeader}
+     * <pre>
+     *        Position  Field           Value          Type    Order
+     *        --------  -----           -----          ----    -----
+     *        Byte 0    Record Number   Record Number  Integer Big
+     *        Byte 4    Content Length  Content Length Integer Big
+     * </pre>
+     *
+     * @return {@link RecordHeader}
+     */
     public static RecordHeader fromBytes(final byte[] bytes) {
         final ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
         final RecordHeader recordHeader = new RecordHeader();

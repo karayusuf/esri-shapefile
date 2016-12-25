@@ -1,5 +1,7 @@
 package esri.shapefile.models.shapes;
 
+import esri.shapefile.models.BoundingBox;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -20,32 +22,38 @@ import java.util.stream.IntStream;
  * shapefile readers must handle such cases. On the other hand, the degenerate, zero length
  * or zero area parts that might result are not allowed.
  *
- * Position Field       Value     Type    Number    Order
- * -------- -----       -----     ----    ------    -----
- * Byte 0   Shape Type  5         Integer 1         Little
- * Byte 4   Box         Box       Double  4         Little
- * Byte 36  NumParts    NumParts  Integer 1         Little
- * Byte 40  NumPoints   NumPoints Integer 1         Little
- * Byte 44  Parts       Parts     Integer NumParts  Little
- * Byte X   Points      Points    Point   NumPoints Little
+ * The Polygon structure is identical to the PolyLine structure, as follows:
  *
- * * Note: X = 44 + 4 * NumParts
+ * Polygon
+ * {
+ *   Double[4] Box           // Bounding Box
+ *   Integer NumParts        // Number of Parts
+ *   Integer NumPoints       // Total Number of Points
+ *   Integer[NumParts] Parts // Index to First Point in Part
+ *   Point[NumPoints] Points // Points for All Parts
+ * }
+ *
  */
 public class Polygon implements Shape {
 
-    public static Polygon fromBytes(final byte[] bytes) {
-        return fromBytes(ByteBuffer.wrap(bytes));
-    }
-
+    /**
+     * Position Field       Value     Type    Number    Order
+     * -------- -----       -----     ----    ------    -----
+     * Byte 0   Shape Type  5         Integer 1         Little
+     * Byte 4   Box         Box       Double  4         Little
+     * Byte 36  NumParts    NumParts  Integer 1         Little
+     * Byte 40  NumPoints   NumPoints Integer 1         Little
+     * Byte 44  Parts       Parts     Integer NumParts  Little
+     * Byte X   Points      Points    Point   NumPoints Little
+     *
+     * * Note: X = 44 + 4 * NumParts
+     */
     public static Polygon fromBytes(final ByteBuffer byteBuffer) {
         byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
 
         final Polygon polygon = new Polygon();
         polygon.shapeType = byteBuffer.getInt();
-        polygon.xMin = byteBuffer.getDouble();
-        polygon.yMin = byteBuffer.getDouble();
-        polygon.xMax = byteBuffer.getDouble();
-        polygon.yMax = byteBuffer.getDouble();
+        polygon.boundingBox = BoundingBox.fromBytes(byteBuffer);
 
         polygon.numParts = byteBuffer.getInt();
         polygon.numPoints = byteBuffer.getInt();
@@ -68,10 +76,10 @@ public class Polygon implements Shape {
     private Polygon() {}
     private int shapeType;
 
-    private double xMin;
-    private double yMin;
-    private double xMax;
-    private double yMax;
+    /**
+     * The Bounding Box for the polygon stored in the order Xmin, Ymin, Xmax, Ymax.
+     */
+    private BoundingBox boundingBox;
 
     /**
      * The number of rings in the polygon.
@@ -102,20 +110,8 @@ public class Polygon implements Shape {
         return ShapeType.Polygon;
     }
 
-    public double getXMin() {
-        return xMin;
-    }
-
-    public double getYMin() {
-        return yMin;
-    }
-
-    public double getXMax() {
-        return xMax;
-    }
-
-    public double getYMax() {
-        return yMax;
+    public BoundingBox getBoundingBox() {
+        return boundingBox;
     }
 
     public int getNumParts() {
@@ -132,5 +128,20 @@ public class Polygon implements Shape {
 
     public List<Point> getPoints() {
         return points;
+    }
+
+    public List<List<Point>> getRings() {
+        final List<Integer> ringParts = new ArrayList(parts);
+        ringParts.add(numPoints);
+
+        final List<List<Point>> rings = new ArrayList<>(numParts);
+        ringParts.stream().reduce((startIndex, endIndex) -> {
+            final List<Point> ring = points.subList(startIndex, endIndex);
+            rings.add(ring);
+
+            return endIndex;
+        });
+
+        return rings;
     }
 }
